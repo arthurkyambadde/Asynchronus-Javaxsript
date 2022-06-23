@@ -30,6 +30,11 @@ const renderCountry = function (data, className = '') {
   countriesContainer.style.opacity = 1;
 };
 
+const renderError = function (msg) {
+  countriesContainer.insertAdjacentText('beforeend', msg);
+  countriesContainer.style.opacity = 1;
+};
+
 // const countries = function (name) {
 //   const request = new XMLHttpRequest();
 //   request.open('GET', `https://restcountries.com/v3.1/name/${name}`);
@@ -83,7 +88,10 @@ const renderCountry = function (data, className = '') {
 
 const getCountryData = function (country) {
   const request2 = fetch(`https://restcountries.com/v3.1/name/${country}`)
-    .then(response => response.json())
+    .then(
+      response => response.json()
+      // error => alert(error)
+    )
     .then(data => {
       renderCountry(data[0]);
       console.log(data[0]);
@@ -101,13 +109,19 @@ const getCountryData = function (country) {
         const neighborRequest = fetch(
           `https://restcountries.com/v3.1/alpha/${neighbor}`
         )
-          .then(response => response.json())
+          .then(
+            response => response.json()
+            // error => alert(error)
+          )
           .then(data => {
-            renderCountry(data[0]);
+            renderCountry(data[0], 'neighbour');
           });
-        // console.log(dataObject);
       });
+    })
+    .catch(error => renderError(`something is wrong bro ${error}`))
+    .finally(() => {
+      countriesContainer.style.opacity = 1;
     });
 };
 
-getCountryData('nigeria');
+btn.addEventListener('click', () => getCountryData('qagfhb'));
