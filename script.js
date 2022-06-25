@@ -86,12 +86,17 @@ const renderError = function (msg) {
 // countries('iraq');
 // countries('rwanda');
 
+const getJSON = function (url, errorMsg = 'Something went wrong') {
+  return fetch(url).then(response => {
+    if (response.ok === false) {
+      throw new Error(`Country not found ${response.status}`);
+    }
+    return response.json();
+  });
+};
+
 const getCountryData = function (country) {
-  const request2 = fetch(`https://restcountries.com/v3.1/name/${country}`)
-    .then(
-      response => response.json()
-      // error => alert(error)
-    )
+  getJSON(`https://restcountries.com/v3.1/name/${country}`, 'country not found')
     .then(data => {
       renderCountry(data[0]);
       console.log(data[0]);
@@ -99,23 +104,20 @@ const getCountryData = function (country) {
 
       console.log(neighbors);
 
-      if (!neighbors) return;
+      if (!neighbors) throw new Error('No neighbor found');
 
       //neighbours
+
       return neighbors;
     })
     .then(neighbors => {
       neighbors.forEach(neighbor => {
-        const neighborRequest = fetch(
-          `https://restcountries.com/v3.1/alpha/${neighbor}`
-        )
-          .then(
-            response => response.json()
-            // error => alert(error)
-          )
-          .then(data => {
-            renderCountry(data[0], 'neighbour');
-          });
+        getJSON(
+          `https://restcountries.com/v3.1/alpha/${neighbor}`,
+          'country not found'
+        ).then(data => {
+          renderCountry(data[0], 'neighbour');
+        });
       });
     })
     .catch(error => renderError(`something is wrong bro ${error}`))
@@ -124,4 +126,34 @@ const getCountryData = function (country) {
     });
 };
 
-btn.addEventListener('click', () => getCountryData('qagfhb'));
+// btn.addEventListener('click', () => getCountryData('australia'));
+
+//CHALLENGE 1
+
+const whereAmI = function (lat, lng) {
+  fetch(`https://geocode.xyz/${lat},${lng}?geoit=json`)
+    .then(response => {
+      console.log(response);
+      if (!response.ok) {
+        throw new Error(`Problem with geocoding ${response.status}`);
+      }
+
+      return response.json();
+    })
+    .then(data => {
+      console.log(data);
+      console.log(`you are in ${data.city}, ${data.country}`);
+      // console.log(data.country);
+      return fetch(`https://restcountries.com/v3.1/name/${data.country}`);
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log(data);
+      renderCountry(data[0]);
+    })
+    .catch(error => console.log(`${error}---------`));
+};
+
+whereAmI(52.508, 13.381);
+whereAmI(19.037, 72.873);
+whereAmI(-33.933, 18.474);
