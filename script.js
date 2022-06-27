@@ -287,27 +287,31 @@ const getPosition = function () {
 };
 
 const whereAmI = async function () {
-  const position = await getPosition();
-  console.log(position);
+  try {
+    const position = await getPosition();
+    console.log(position);
 
-  const { latitude: lat, longitude: lng } = position.coords;
-  // console.log(lat, lng);
+    const { latitude: lat, longitude: lng } = position.coords;
+    // console.log(lat, lng);
 
-  const responseGeo = await fetch(
-    `https://geocode.xyz/${lat},${lng}?geoit=json`
-  );
+    const responseGeo = await fetch(
+      `https://geocode.xyz/${lat},${lng}?geoit=json`
+    );
 
-  const dataGeo = await responseGeo.json();
-  console.log(dataGeo);
+    const dataGeo = await responseGeo.json();
+    console.log(dataGeo);
 
-  const response = await fetch(
-    `https://restcountries.com/v3.1/name/${dataGeo.country}`
-  );
-  // console.log(response);
-  const data = await response.json();
-  console.log(data);
+    const response = await fetch(
+      `https://restcountries.com/v3.1/name/${dataGeo.country}`
+    );
+    // console.log(response);
+    const data = await response.json();
+    console.log(data);
 
-  renderCountry(data[0]);
+    renderCountry(data[0]);
+  } catch (error) {
+    console.error(error);
+  }
 };
 
 whereAmI();
